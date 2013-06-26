@@ -1,4 +1,11 @@
 sigwis
 ======
 
-Real time general purpose ignal visualizer for web browsers
+Real time general purpose signal visualizer for web browsers
+
+Contributors
+============
+
+Ozan Çağlayan
+Mustafa Furkan Kaptan
+Gökberk Koçak
