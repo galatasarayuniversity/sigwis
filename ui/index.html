@@ -70,20 +70,27 @@
         var sock = null;
         /* Log */
         var ellog = null;
+        var wsuri = "ws://localhost:9000";
 
-        window.onload = function()
+        function change_address()
         {
-            var wsuri;
-            ellog = document.getElementById('log');
-
-            if (window.location.protocol === "file:")
+            var address = document.getElementById("wsuri");
+            if(address.value.length != 0)
             {
-              wsuri = "ws://localhost:9000";
-            } 
-            else
-            {
-                wsuri = "ws://" + window.location.hostname + ":9000";
+                wsuri = address.value;
             }
+            
+            if (sock != null)
+            {
+                sock.close();
+            }
+
+            draw();
+        }
+
+        function draw()
+        {
+            ellog = document.getElementById('log');
 
             if ("WebSocket" in window) 
             {
@@ -108,6 +115,10 @@
                 sock.onopen = function()
                 {
                     log("Connected to " + wsuri);
+
+                    document.getElementById("change").style.display = "none";
+                    document.getElementById("specify").style.display = "none";
+                    document.getElementById("wsuri").style.display = "none";
 
                     for(var i = 0; i < 14; i++)
                     {
@@ -178,7 +189,12 @@
             ellog.innerHTML += m + '\n';
             ellog.scrollTop = ellog.scrollHeight;
         };
+
     </script>
+
+    <div id="specify"> Please specify the address: </div>
+    <input type="text" id="wsuri" placeholder="ws://localhost:9000">
+    <button id="change" onclick="change_address()"> Change </button>
 
     <noscript>You must enable JavaScript</noscript>
     <pre id="log" style="height: 10em; overflow-y: scroll; background-color: #faa;">
