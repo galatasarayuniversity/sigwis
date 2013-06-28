@@ -18,7 +18,7 @@ class Channel():
 class BroadcastClientProtocol(WebSocketClientProtocol):
     """
     Simple client that connects to a WebSocket server, send a
-    message every 0.02 seconds and print everything it receives.
+    message every 0.2 seconds.
     """
     def __init__(self):
         ch_names = ['AF3', 'F7', 'F3', 'FC5',
@@ -48,11 +48,12 @@ class BroadcastClientProtocol(WebSocketClientProtocol):
         #print "Got message: " + msg
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print "Need the WebSocket server address, i.e. ws://localhost:9000"
-        sys.exit(1)
+    wsaddress = "ws://localhost:9000"
+    if len(sys.argv) == 2:
+        wsaddress = sys.argv[1]
+        print "WebSocket server address: %s " % wsaddress
 
-    factory = WebSocketClientFactory(sys.argv[1])
+    factory = WebSocketClientFactory(wsaddress)
     factory.protocol = BroadcastClientProtocol
     connectWS(factory)
 
