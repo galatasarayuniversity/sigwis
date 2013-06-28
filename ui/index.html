@@ -102,6 +102,22 @@
             draw();
         }
 
+        function hide_log()
+        {
+            var log = document.getElementById("log");
+            if ( log.style.display == "none" )
+            {
+                log.style.display = "block";
+                document.getElementById("hidelog").innerHTML = "Hide Log";
+            }
+            else
+            {
+                log.style.display = "none";
+                document.getElementById("hidelog").innerHTML = "Show Log";
+            }
+
+        }
+
         function draw()
         {
             ellog = document.getElementById('log');
@@ -217,6 +233,8 @@
     <button id="change" onclick="change_address()"> Change </button>
 
     <noscript>You must enable JavaScript</noscript>
+
+    <button id="hidelog" onclick="hide_log()">Hide Log</button>
     <pre id="log" style="height: 10em; overflow-y: scroll; background-color: #faa;">
     </pre>
 
