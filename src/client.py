@@ -17,7 +17,7 @@ class Channel():
 
 class BroadcastClientProtocol(WebSocketClientProtocol):
     """
-    Simple client that connects to a WebSocket server, send a HELLO
+    Simple client that connects to a WebSocket server, send a
     message every 0.02 seconds and print everything it receives.
     """
     def __init__(self):
