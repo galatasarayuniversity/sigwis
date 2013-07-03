@@ -138,7 +138,7 @@
 
             var Channels;
             var gArray = new Array();
-            var palette = new Rickshaw.Color.Palette( { scheme: 'classic9' } );
+            var palette = new Rickshaw.Color.Palette( { scheme: 'spectrum14' } );
             var ch_names = ['AF3', 'F7', 'F3', 'FC5',
                     'T7', 'P7', 'O1', 'O2',
                     'P8', 'T8', 'FC6', 'F4',
@@ -159,21 +159,16 @@
                             width: 1000,
                             height: 75,
                             renderer: 'line',
-                            series: new Rickshaw.Series.FixedDuration([{ name: ch_names[i], color:palette.color()  }], undefined,
+                            series: new Rickshaw.Series.FixedDuration([{ name: ch_names[i]}], palette,
                             {
                                 timeInterval: 1000,
                                 maxDataPoints: 50,
                             })
                         });
+                        /* configure palette for next graph */
+                        palette.scheme = palette.scheme.slice(1);
                         graph.configure({strokeWidth:1});
                         var xTick = new Rickshaw.Graph.Axis.Time( { graph: graph } );
-                        // var yTick = new Rickshaw.Graph.Axis.Y(
-                        //     {
-                        //         graph: graph,
-                        //         orientation: 'left',
-                        //         tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-                        //         element: document.getElementById('y_axis'),
-                        //     } );
                         var legend = new Rickshaw.Graph.Legend( {
                             element: document.querySelector('#legend'),
                             graph: graph
