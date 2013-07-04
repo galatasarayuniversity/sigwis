@@ -75,15 +75,14 @@
 
             </tr>
     </table>
-
     </div>
-    
 
     <script>
         /* Websocket */
         var sock = null;
         /* Log */
         var ellog = null;
+        /* Default address */
         var wsuri = "ws://localhost:9000";
 
         function change_address()
@@ -93,12 +92,10 @@
             {
                 wsuri = address.value;
             }
-            
             if (sock != null)
             {
                 sock.close();
             }
-
             draw();
         }
 
@@ -115,44 +112,54 @@
                 log.style.display = "none";
                 document.getElementById("hidelog").innerHTML = "Show Log";
             }
-
         }
 
         function draw()
         {
+            var Channels;
+            var gArray = new Array();
+            var palette = new Rickshaw.Color.Palette( { scheme: 'classic9' } );
+
+            var graphtype;
+            var graphcount = 0;
+            var graphnames;
+
             ellog = document.getElementById('log');
 
             if ("WebSocket" in window) 
             {
                 sock = new WebSocket(wsuri);
-            } 
-            else if ("MozWebSocket" in window) 
-            {
-                sock = new MozWebSocket(wsuri);
-            } 
+            }
             else 
             {
                 log("Browser does not support WebSocket!");
                 window.location = "http://autobahn.ws/unsupportedbrowser";
             }
-
-            var Channels;
-            var gArray = new Array();
-            var palette = new Rickshaw.Color.Palette( { scheme: 'spectrum14' } );
-            var ch_names = ['AF3', 'F7', 'F3', 'FC5',
-                    'T7', 'P7', 'O1', 'O2',
-                    'P8', 'T8', 'FC6', 'F4',
-                    'F8', 'AF4']
-            if (sock)
+            
+            /* Get data from the message and render graphs */
+            var getdata = function(channels)
             {
-                sock.onopen = function()
+                var iv = setInterval( function()
+                {   
+                    for (i=0; i<graphcount; i++)
+                    {
+                        var data = { signal: channels.channels[i].signal, color:palette.color() };
+                        gArray[i].series.addData(data);
+                        gArray[i].render();
+                    }
+                });
+            };
+
+            /* Get the config data (eeg etc.) */
+            var getconfig = function(config)
+            {
+                if (graphcount == 0)
                 {
-                    log("Connected to " + wsuri);
+                    graphtype = config.client.gtype;
+                    graphcount = config.client.gcount;
+                    graphnames = config.client.gnames;
 
-                    document.getElementById("change").style.display = "none";
-                    document.getElementById("wsuri").style.display = "none";
-
-                    for(var i = 0; i < 14; i++)
+                    for(var i=0; i<graphcount; i++)
                     {
                         var graph = new Rickshaw.Graph({
                             element: document.getElementById("chart"),
@@ -165,17 +172,36 @@
                                 maxDataPoints: 50,
                             })
                         });
+
                         /* configure palette for next graph */
                         palette.scheme = palette.scheme.slice(1);
                         graph.configure({strokeWidth:1});
                         var xTick = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+
                         var legend = new Rickshaw.Graph.Legend( {
                             element: document.querySelector('#legend'),
                             graph: graph
                         } );
-                        graph.render()
+
+                        /* Add graphs to gArray */
                         gArray.push(graph);
-                    } 
+                    }
+                    /* Send to device client that type information has received */
+                    sock.send("level");
+                }
+            };
+
+            if (sock)
+            {
+                sock.onopen = function()
+                {
+                    log("Connected to " + wsuri);
+
+                    document.getElementById("change").style.display = "none";
+                    document.getElementById("wsuri").style.display = "none";
+
+                    /* Send type on open */
+                    sock.send("type");
                 }
 
                 sock.onclose = function(e)
@@ -186,20 +212,30 @@
                     sock = null;
                 }
 
-                sock.onmessage = function(msg) 
+                sock.onmessage = function(msg)
                 {
                     var text = msg.data;
-                    Channels = eval ("(" + text + ")");
-
-                    var iv = setInterval( function()
-                    {   
-                        for (i=0 ; i<14; i++)
-                        {
-                            var data = { signal: Channels.channels[i].signal, color:palette.color() };
-                            gArray[i].series.addData(data);
-                            gArray[i].render();
+                    if (text != "level" && text != "type")
+                    {
+                        /* Convert to js object */
+                        text = eval("(" + text + ")");
+                        
+                        if(text.about == "config") /* Type information */
+                        {                        
+                            getconfig(text);
                         }
-                    });
+                        else if(text.about == "channel") /* Channel data */
+                        {
+                            getdata(text);
+                        }
+                        else if(text.about == "disconnect") /* Client disconnected */
+                        {
+                            alert("Client disconnected");
+                            location.reload(true);
+                            sock.close();
+                            sock = null;
+                        }
+                    }
                 }
             }
         }

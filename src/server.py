@@ -16,7 +16,7 @@
 ##
 ###############################################################################
 
-import sys
+import sys, json
 
 from twisted.internet import reactor
 from twisted.python import log
@@ -62,6 +62,7 @@ class BroadcastServerFactory(WebSocketServerFactory):
         if client in self.clients:
             print "unregistered client " + client.peerstr
             self.clients.remove(client)
+            self.broadcast(json.dumps({'about': 'disconnect' }))
 
     def broadcast(self, msg):
         for c in self.clients:
