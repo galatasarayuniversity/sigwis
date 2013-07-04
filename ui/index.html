@@ -176,7 +176,6 @@
                         /* configure palette for next graph */
                         palette.scheme = palette.scheme.slice(1);
                         graph.configure({strokeWidth:1});
-                        var xTick = new Rickshaw.Graph.Axis.Time( { graph: graph } );
 
                         var legend = new Rickshaw.Graph.Legend( {
                             element: document.querySelector('#legend'),
