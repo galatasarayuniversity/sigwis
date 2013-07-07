@@ -30,17 +30,44 @@ from autobahn.websocket import WebSocketServerFactory, \
 
 class BroadcastServerProtocol(WebSocketServerProtocol):
 
+    def __init__(self):
+        self.client = ""
+        self.saved = False
+
     def onOpen(self):
         self.factory.register(self)
 
     def onMessage(self, msg, binary):
         if not binary:
-            self.factory.broadcast("%s" % msg)
+            if msg == "type":
+                if self.saved:
+                    self.factory.broadcast("%s" % self.client)
+                else:
+                    self.factory.broadcast("%s" % msg)
+
+            elif msg == "level":
+                self.factory.broadcast("%s" % msg)
+
+            elif not self.saved:
+                try:
+                    check = json.loads(msg)
+                    if check.get("about") == "config":
+                        self.saveClientData(msg)
+                        self.factory.broadcast("%s" % msg)
+                except ValueError:
+                    self.factory.broadcast("%s" % msg)
+
+            else:
+                self.factory.broadcast("%s" % msg)
 
     def connectionLost(self, reason):
         WebSocketServerProtocol.connectionLost(self, reason)
         self.factory.unregister(self)
 
+    def saveClientData(self, msg):
+        self.client = msg
+        print self.client
+        self.saved = True
 
 class BroadcastServerFactory(WebSocketServerFactory):
     """
