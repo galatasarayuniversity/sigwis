@@ -43,18 +43,20 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
                 if self.saved:
                     self.factory.broadcast("%s" % self.client)
                 else:
-                    self.factory.broadcast("%s" % msg)
+                    self.factory.broadcast(msg)
 
             elif msg == "level":
-                self.factory.broadcast("%s" % msg)
+                self.factory.broadcast(msg)
 
             elif not self.saved:
                 try:
                     check = json.loads(msg)
-                    if check.get("about") == "config":
-                        self.saveClientData(msg)
-                        self.factory.broadcast("%s" % msg)
                 except ValueError:
+                    pass
+                else:
+                    if check["about"] == "config":
+                        self.saveClientData(msg)
+                finally:
                     self.factory.broadcast("%s" % msg)
 
             else:
@@ -66,7 +68,6 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
 
     def saveClientData(self, msg):
         self.client = msg
-        print self.client
         self.saved = True
 
 class BroadcastServerFactory(WebSocketServerFactory):
