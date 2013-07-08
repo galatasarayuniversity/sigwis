@@ -54,6 +54,11 @@
         margin: 0 0 0 10px;
     }
 
+    .ontop {
+        position:absolute;
+        top:0;
+    }
+
     body {
         background-image:url('images/logo_emotiv.jpg');
         background-repeat:no-repeat;
@@ -65,11 +70,11 @@
     <div id="content">
         <table>
             <tr>
-                <td width="1200">
+                <td width="1100">
                     <div id="y_axis"></div>
                     <div id="chart"></div>
                 </td>
-                <td>
+                <td class="ontop">
                     <div id="legend"></div>
                 </td>
 
@@ -126,21 +131,21 @@
 
             ellog = document.getElementById('log');
 
-            if ("WebSocket" in window) 
+            if ("WebSocket" in window)
             {
                 sock = new WebSocket(wsuri);
             }
-            else 
+            else
             {
                 log("Browser does not support WebSocket!");
                 window.location = "http://autobahn.ws/unsupportedbrowser";
             }
-            
+
             /* Get data from the message and render graphs */
             var getdata = function(channels)
             {
                 var iv = setInterval( function()
-                {   
+                {
                     for (i=0; i<graphcount; i++)
                     {
                         var data = { signal: channels.channels[i].signal, color:palette.color() };
@@ -205,8 +210,8 @@
 
                 sock.onclose = function(e)
                 {
-                    log("Connection closed (wasClean = " + e.wasClean + 
-                                            ", code = " + e.code + 
+                    log("Connection closed (wasClean = " + e.wasClean +
+                                            ", code = " + e.code +
                                             ", reason = '" + e.reason + "')");
                     sock = null;
                 }
@@ -218,9 +223,9 @@
                     {
                         /* Convert to js object */
                         text = eval("(" + text + ")");
-                        
+
                         if(text.about == "config") /* Type information */
-                        {                        
+                        {
                             getconfig(text);
                         }
                         else if(text.about == "channel") /* Channel data */
