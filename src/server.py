@@ -23,7 +23,7 @@ from twisted.python import log
 from twisted.web.server import Site
 from twisted.web.static import File
 
-from autobahn.websocket import WebSocketServerFactory, \
+from autobahn.twisted.websocket import WebSocketServerFactory, \
                                          WebSocketServerProtocol, \
                                          listenWS
 
@@ -83,12 +83,12 @@ class BroadcastServerFactory(WebSocketServerFactory):
 
     def register(self, client):
         if not client in self.clients:
-            print "registered client " + client.peerstr
+            print "client registered"
             self.clients.append(client)
 
     def unregister(self, client):
         if client in self.clients:
-            print "unregistered client " + client.peerstr
+            print "client unregistered"
             self.clients.remove(client)
             self.broadcast(json.dumps({'about': 'disconnect' }))
 

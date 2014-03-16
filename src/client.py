@@ -1,7 +1,7 @@
 import sys, json, random
 
 from twisted.internet import reactor
-from autobahn.websocket import WebSocketClientFactory, \
+from autobahn.twisted.websocket import WebSocketClientFactory, \
                                          WebSocketClientProtocol, \
                                          connectWS
 
@@ -47,13 +47,13 @@ class BroadcastClientProtocol(WebSocketClientProtocol):
                             'gcount': self.client_channels.count,
                             'gnames': self.client_channels.names}
         self.sendMessage(json.dumps({'about': 'config', 'client': client_type }))
-        
+
         if self.about == 'type':
             reactor.callLater(0.2, self.sendType)
         elif self.about == 'level':
             self.sendLevel()
 
-    def sendLevel(self):  
+    def sendLevel(self):
         msg = list()
         for c in self.client_channels.names:
             data, qlt = self.client_channels.channels[c].generate_data()
@@ -62,7 +62,7 @@ class BroadcastClientProtocol(WebSocketClientProtocol):
                                 'quality': qlt})
 
         self.sendMessage(json.dumps({'about': 'channel', 'channels': msg}))
-        if self.about == 'level':    
+        if self.about == 'level':
             reactor.callLater(0.2, self.sendLevel)
         elif self.about == 'type':
             self.sendType()
