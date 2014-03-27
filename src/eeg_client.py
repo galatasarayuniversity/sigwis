@@ -39,7 +39,7 @@ class BroadcastClientProtocol(WebSocketClientProtocol):
                     'P8', 'T8', 'FC6', 'F4',
                     'F8', 'AF4']
 
-        self.client_channels = ChannelBlock("eeg", 14, ch_names)
+        self.client_channels = ChannelBlock("eeg", len(ch_names), ch_names)
         self.about = 'type'
 
     def sendType(self):
